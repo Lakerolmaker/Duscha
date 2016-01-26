@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -9,13 +10,12 @@
 
 </head>
 <img id="soap" src="Bilder/soap1.png" style="display: none">
-<img id="Backteria" src="Bilder/Backteria%20smutsig.png" style="display: none">
+<img id="DirtyBackteria" src="Bilder/Backteria%20smutsig.png" style="display: none">
 <img id="soapbuble" src="Bilder/soapbuble.png" style="display: none">
+<img id="cleanBakteria" src="Bilder/bakteria.png" style="display: none">
 
 
-
-
-<body>
+<body onkeydown="keyDown(event)" onkeyup="keyUp(event)">
 
     <canvas id="myCanvas" width="800" height="600" style="position: absolute; left 0px; right 0px; border:3px solid blue" z-index; 1>>
 
@@ -23,18 +23,16 @@
 
 
         <script>
-            var soapImg;
-            var BackteriaImg;
-
-
-
+            //: Skapr variabler för canvas
             var c = document.getElementById("myCanvas");
             var ctx = c.getContext("2d");
 
-            soapImg = document.getElementById("soap");
-            backteriaImg = document.getElementById("Backteria")
-            soapbubleImg = document.getElementById("soapbuble")
-            
+            //: Skapr variabler för bilberna.
+            var soapImg = document.getElementById("soap");
+            var dirtyBakteriaImg = document.getElementById("DirtyBackteria")
+            var cleanBakteriaImg = document.getElementById("cleanBakteria")
+            var soapbubleImg = document.getElementById("soapbuble")
+
 
 
 
@@ -42,179 +40,267 @@
             window.setInterval(update, 1)
 
             // functionen som skapar en bakteria.
-            function Backteria(name, x, y, vy, vx) {
+            function backteria(name, x, y, vy, vx) {
 
                 this.name = name;
                 this.x = x;
                 this.vx = vx;
                 this.y = y;
                 this.vy = vy;
-
-
-            }
-
-            var atackers = []
-
-
-
-             //:  uppdaterar spelet
-            function update() {
-              
-
-                
- 
-                heartbeat();
-                ctx.clearRect(0,0,800,600)
-                
-                
                
-                DrawImg()
-                
-                if (miliseconds == 0) {
-                Spawn()
-                 }
-                
-                
-            }
-            
 
+
+            }
+
+            //: Skapar nya bublor som används för att tvätta bakterierna.
+            function buble(name, x, y, vy, vx, damage) {
+
+                this.name = name;
+                this.x = x;
+                this.vx = vx;
+                this.y = y;
+                this.vy = vy;
+                this.damage = damage;
+
+            }
+
+
+            //: Skapar alla arays så att alla obejt har en plats.
+
+            //: Array för bakterierna
+            var atackers = []
+                //: Array för bublorna.
+            var bubbles = []
+
+
+            //: Ger tvålen ett rörligt x och y värde.
+            var soapx = 350,
+                soapy = 500;
+
+
+            //:  uppdaterar spelet
+            function update() {
+
+                //: Den ingående klockan i spelet.
+                heartbeat();
+
+                //: Tar bort den gamla positionen av alla objekt.
+                ctx.clearRect(0, 0, 800, 600)
+
+                //: Ritar ut allting på skärmen .
+                DrawImg()
+
+
+                //: Skapr nya bakterier 
+                Spawn()
+
+                //: kollar om en bakterie har blibit träffad.
+                collision()
+
+            }
+
+
+            //: skapr namn för alla bakterier så att de blir identifierbara.
             var names = 0
 
             //: Skapar nya bakterier.
             function Spawn() {
-                if((names !== 20) ) {
-               
-                    names = names + 1
-                    atackers.push(new Backteria(names, 0, 10, 0, 0.3 ))
-                    
-                  
-                   
 
-              }
+                if ((names !== 20) && (miliseconds == 0)) {
+
+                    //: lägger till ett på namnet , så att alla bakterier får olika namn.
+                    names = names + 1
+                        //: skapr en ny bakterie och läger in den i en array, så att den är lätt tillgänglig
+                    atackers.push(new backteria(names, 0, 10, 0, 0.3))
+
+
+
+
+                }
             }
-            
-            
+
+
             //: Ritar ut alla Backterier
             function DrawImg() {
 
-                
-                
-                  //: Ritar ut alla Bakterier.
-                for(var i = 0; i < atackers.length ; i++){
-                    
-                    if(atackers.length !== 20){
-                        
-                    if((this.atackers[i].x > 700) && (this.atackers[i].y < 99)){
-                        this.atackers[i].vx = 0
-                        this.atackers[i].vy = 0.4
+
+
+                //: Ritar ut alla Bakterier.
+                for (var i = 0; i < atackers.length; i++) {
+
+                    if (atackers.length !== 20) {
+
+                        if ((this.atackers[i].x > 700) && (this.atackers[i].y < 99)) {
+                            this.atackers[i].vx = 0
+                            this.atackers[i].vy = 0.4
+                        }
+
+                        if ((this.atackers[i].y > 70) && (this.atackers[i].x > 50)) {
+                            this.atackers[i].vy = 0
+                            this.atackers[i].vx = -0.3
+                        }
+
+
+                        //: Gör så att alla bakterier rör sig neråt efter att att de ställt upp sig i rätt orning.
+
+                        /*if((this.atackers[i].x < 10) && (this.atackers[i].y > 67) && (this.atackers[i].y < 75)){
+                            
+                            this.atackers[i].vx = 0
+                            this.atackers[i].vy = 0.4
+                               }
+                        */
+
                     }
-                    
-                    if((this.atackers[i].y > 70 ) &&  (this.atackers[i].x > 50)) {
-                       this.atackers[i].vy = 0
-                       this.atackers[i].vx = -0.3
-                    }
-                    
-                    /*if((this.atackers[i].x < 10) && (this.atackers[i].y > 67) && (this.atackers[i].y < 75)){
-                        
-                        this.atackers[i].vx = 0
-                        this.atackers[i].vy = 0.4
-                           }
-                    */
-                
-                 }
-                    
-                if(atackers.length == 20){
-                     
-                    if(i <= 9){
-                       
+
+                    //: ställer upp bakterierna i snygga rader när det har skapats 20 bakterier.
+                    if (atackers.length == 20) {
+
                         // stoppar den undre raden när den första bakterien är vid dens specifika lokalition.
-                        if(this.atackers[0].x > 51.8){
-                             this.atackers[i].vx = -0.3
-                             // stoppar alla bakterier från att åka i y-led
-                             //(förutom nummer 10, efterssom att den inte hade åkt klart)
-                             if(i != 9){
-                              this.atackers[i].vy = 0
-                             } 
-          
-                       }else{
-                           this.atackers[i].vx = 0
-                       }
-                        
-                        
-                        // Gör så att nummer 10 åkert klart i y-led
-                             if(i == 9){
-                                 if(this.atackers[i].y > 70){
-                                   this.atackers[i].vy = 0  
-                                 }
-                             }
-                        
+                        if (i <= 9) {
+
+                            if (this.atackers[0].x > 51.8) {
+                                this.atackers[i].vx = -0.3
+                                    // stoppar alla bakterier från att åka i y-led
+                                    //(förutom nummer 10, efterssom att den inte hade åkt klart)
+                                if (i != 9) {
+                                    this.atackers[i].vy = 0
+                                }
+
+                            } else {
+                                this.atackers[i].vx = 0
+                            }
+
+                            // Gör så att nummer 10 åkert klart i y-led
+                            if (i == 9) {
+                                if (this.atackers[i].y > 70) {
+                                    this.atackers[i].vy = 0
+                                }
+                            }
+                        }
+
+                        // stoppar den övre raden när den första bakterien är vid dens specifika lokalition.
+                        if (i > 9) {
+                            if (this.atackers[10].x < 700) {
+                                this.atackers[i].vx = 0.3
+                                this.atackers[i].vy = 0
+
+                            } else {
+                                this.atackers[i].vx = 0
+                                this.atackers[i].vy = 0
+                                    //: Flyttar den 10 bakterien så att den har samma x värde som den bakterien över sig.
+                                this.atackers[9].x = this.atackers[10].x
+
+                            }
+                        }
                     }
-                     
-                    
-                    if(i > 9){
-                       if(this.atackers[10].x < 700){
-                             this.atackers[i].vx = 0.3
-                             this.atackers[i].vy = 0
-                         
-                       }else{
-                          this.atackers[i].vx = 0
-                          this.atackers[i].vy = 0
-                          this.atackers[9].x = this.atackers[10].x
-                          
-                       }
-                    }
-                     
-                    
-                   
-                      
-                 }
-                      
-                       
+
                     //: Uppdaterar positionen av bakterien
                     this.atackers[i].x = this.atackers[i].x + this.atackers[i].vx
                     this.atackers[i].y = this.atackers[i].y + this.atackers[i].vy
-                    //: Målar ut bakterien
-                    ctx.drawImage(backteriaImg,this.atackers[i].x, this.atackers[i].y, 50, 50)
+                        //: Målar ut bakterien
+                    ctx.drawImage(dirtyBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
+
+
+                }
+
+
+
+                //: Ritar ut alla bublor.
+                for (i = 0; i < bubbles.length; i++) {
+
+                    this.bubbles[i].x = this.bubbles[i].x + this.bubbles[i].vx
+                    this.bubbles[i].y = this.bubbles[i].y + this.bubbles[i].vy
+
+                    ctx.drawImage(soapbubleImg, this.bubbles[i].x, this.bubbles[i].y, 18, 17)
+
+                }
+
+
+
+                //: Ritar ut tvålen.
+                ctx.drawImage(soapImg, soapx, soapy, 100, 100)
+
+
+            }
+
+
+
+            function collision(){
+                for(var i = 0; i < bubbles.length; i++ ){
+                    for(var z = 0; z < atackers.length; z++){
+                        
+                        if(this.bubbles[i].x == this.atackers[z].x){
+                            console.log("yes")
+                            
+                        }
+                        
+                        
+                    }
                     
-
-                  }
-
-                
-                
-                ctx.drawImage(soapImg,350,500,100,100)
-                ctx.drawImage(soapbubleImg,400,500,18,17)
+                }
                 
                 
             }
 
-           
 
-            
 
-            
-           
-            
+            //: Gör så att alla bublor är identifierbara
+            var bublename = 1
+
+            //: Gör så att man inte kan skjuta bublor kostant.
+            //: lägger till en reload function.
+            //: Gör så att man inte kan skjuta på 1 sejund efter man har skjutit-
+            var reloadtimer = 0
+
+
+
+            //: En funktion som kollar om någon har tryckt ner en knapp.
+            function keyDown(ev) {
+
+                console.log(ev.keyCode);
+
+
+                //: Gör så att det skaps en ny bubla när man trycker ner space
+                if ((ev.keyCode == 32) && (reloadtimer < ((hours * 864000) + (minutes * 14400) + (seconds * 240) + miliseconds))) {
+
+                    //: Skapr en ny bubla, och lägger den i en array så att den blir lätt tillgänglig
+                    bubbles.push(new buble(bublename, soapx + 35, soapy + 25, -0.3, 0,0))
+
+                    //: höjer namnet med en så att nästa buble inte har samma namn som förra.
+                    bublename = bublename + 1
+
+                    //: lägger in tiden i en array så att man bara kan skjuta efter det ha gått en sekund
+                    reloadtimer = ((hours * 864000) + (minutes * 14400) + (seconds * 240) + miliseconds + 240)
+
+                }
+
+            }
+
+            //: En funktion som kollar om någon har släppt en knapp.
+            function keyUp(ev) {
+
+                console.log(ev.keyCode);
+            }
+
+
+
             //: Tids variabler
             var miliseconds = 0,
                 seconds = 0,
                 minutes = 0,
-                hours = 0,
-                modclock = 240;
+                hours = 0;
 
+            
+            
 
-
-
-
-  
-            // : Gör så att tiden ändras, altt efter som.
+            // : Gör så att tiden ändras, allt efter som.(En klocka.)
             function heartbeat() {
                 //: Visar tiden i consolen.
-                //rconsole.log(hours + ":" + minutes + ":" + seconds + ":" + miliseconds)
+                //console.log(hours + ":" + minutes + ":" + seconds + ":" + miliseconds)
 
-                
                 miliseconds = miliseconds + 1
 
-                if (miliseconds > modclock) {
+                if (miliseconds > 240) {
                     miliseconds = 0
                     seconds = seconds + 1
                 } else if (seconds > 60) {
@@ -225,9 +311,6 @@
                     hours = hours + 1
 
                 }
-
-
-
 
             }
         </script>
