@@ -13,6 +13,9 @@
 <img id="DirtyBackteria" src="Bilder/Backteria%20smutsig.png" style="display: none">
 <img id="soapbuble" src="Bilder/soapbuble.png" style="display: none">
 <img id="cleanBakteria" src="Bilder/bakteria.png" style="display: none">
+<img id="redBakteria" src="Bilder/Backteria%20smutsig%20r%C3%B6d.png" style="display: none">
+<img id="blueBakteria" src="Bilder/Backteria%20smutsig%20bl%C3%A5.png" style="display: none">
+<img id="blackBakteria" src="Bilder/Backteria%20smutsig%20svart.png" style="display: none">
 
 
 <body onkeydown="keyDown(event)" onkeyup="keyUp(event)">
@@ -32,6 +35,9 @@
             var dirtyBakteriaImg = document.getElementById("DirtyBackteria")
             var cleanBakteriaImg = document.getElementById("cleanBakteria")
             var soapbubleImg = document.getElementById("soapbuble")
+            var redBakteriaImg = document.getElementById("redBakteria")
+            var blueBakteriaImg = document.getElementById("blueBakteria")
+            var blackBakteriaImg = document.getElementById("blackBakteria")
 
 
 
@@ -47,7 +53,7 @@
                 this.vx = vx;
                 this.y = y;
                 this.vy = vy;
-               
+
 
 
             }
@@ -71,11 +77,17 @@
             var atackers = []
                 //: Array för bublorna.
             var bubbles = []
+                //: En array för temporär information,
+            var temp = []
+
+
 
 
             //: Ger tvålen ett rörligt x och y värde.
             var soapx = 350,
-                soapy = 500;
+                soapy = 500,
+                soapVx = 0,
+                soapVy = 0;
 
 
             //:  uppdaterar spelet
@@ -101,7 +113,8 @@
 
 
             //: skapr namn för alla bakterier så att de blir identifierbara.
-            var names = 0
+            var names = 0,
+                startmotion = 1;
 
             //: Skapar nya bakterier.
             function Spawn() {
@@ -128,7 +141,7 @@
                 //: Ritar ut alla Bakterier.
                 for (var i = 0; i < atackers.length; i++) {
 
-                    if (atackers.length !== 20) {
+                    if ((names !== 20) && (startmotion == 1)) {
 
                         if ((this.atackers[i].x > 700) && (this.atackers[i].y < 99)) {
                             this.atackers[i].vx = 0
@@ -140,20 +153,10 @@
                             this.atackers[i].vx = -0.3
                         }
 
-
-                        //: Gör så att alla bakterier rör sig neråt efter att att de ställt upp sig i rätt orning.
-
-                        /*if((this.atackers[i].x < 10) && (this.atackers[i].y > 67) && (this.atackers[i].y < 75)){
-                            
-                            this.atackers[i].vx = 0
-                            this.atackers[i].vy = 0.4
-                               }
-                        */
-
                     }
 
                     //: ställer upp bakterierna i snygga rader när det har skapats 20 bakterier.
-                    if (atackers.length == 20) {
+                    if ((names == 20) && (startmotion == 1)) {
 
                         // stoppar den undre raden när den första bakterien är vid dens specifika lokalition.
                         if (i <= 9) {
@@ -171,10 +174,10 @@
                             }
 
                             // Gör så att nummer 10 åkert klart i y-led
-                            if (i == 9) {
-                                if (this.atackers[i].y > 70) {
-                                    this.atackers[i].vy = 0
-                                }
+                            if ((i == 9) && (this.atackers[i].y > 70)) {
+
+                                this.atackers[i].vy = 0
+
                             }
                         }
 
@@ -190,15 +193,36 @@
                                     //: Flyttar den 10 bakterien så att den har samma x värde som den bakterien över sig.
                                 this.atackers[9].x = this.atackers[10].x
 
+
+
                             }
                         }
+
+                        //: kollar om alla bakterier har ställt upp sig i rätt orning.
+                        if ((atackers[0].vx == 0) && (atackers[1].vx == 0) && (atackers[2].vx == 0) && (atackers[3].vx == 0) && (atackers[4].vx == 0) && (atackers[5].vx == 0) && (atackers[6].vx == 0) && (atackers[7].vx == 0) && (atackers[8].vx == 0) && (atackers[9].vx == 0) && (atackers[10].vx == 0) && (atackers[11].vx == 0) && (atackers[12].vx == 0) && (atackers[13].vx == 0) && (atackers[14].vx == 0) && (atackers[15].vx == 0) && (atackers[16].vx == 0) && (atackers[17].vx == 0) && (atackers[18].vx == 0) && (atackers[19].vx == 0)) {
+                            startmotion = 0
+                        }
+
                     }
 
                     //: Uppdaterar positionen av bakterien
                     this.atackers[i].x = this.atackers[i].x + this.atackers[i].vx
                     this.atackers[i].y = this.atackers[i].y + this.atackers[i].vy
-                        //: Målar ut bakterien
-                    ctx.drawImage(dirtyBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
+
+                    //: Målar ut bakterierna. målar även ut special färgade baktterier.
+                    if ((this.atackers[i].name !== 12) && (this.atackers[i].name !== 5) && (this.atackers[i].name !== 20)) {
+                        //: Målar ut den vanligt färgade bakterien
+                        ctx.drawImage(dirtyBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
+                    } else if (this.atackers[i].name == 12) {
+                        //: Målar ut den röd färgade bakterien
+                        ctx.drawImage(redBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
+                    } else if (this.atackers[i].name == 5) {
+                        //: Målar ut den svart färgade bakterien
+                        ctx.drawImage(blackBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
+                    } else if (this.atackers[i].name == 20) {
+                        //: Målar ut den ljusblå färgade bakterien
+                        ctx.drawImage(blueBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
+                    }
 
 
                 }
@@ -218,6 +242,7 @@
 
 
                 //: Ritar ut tvålen.
+                soapx += soapVx
                 ctx.drawImage(soapImg, soapx, soapy, 100, 100)
 
 
@@ -225,26 +250,44 @@
 
 
 
-            function collision(){
-                for(var i = 0; i < bubbles.length; i++ ){
-                    for(var z = 0; z < atackers.length; z++){
-                        
-                        if(this.bubbles[i].x == this.atackers[z].x){
-                            console.log("yes")
-                            
+
+            //: En function som kollar om någon av bulorna och bakterierna har kolliderat.
+            //: Tar även bort bakteriet som har kolliderat.
+            function collision() {
+                for (var i = 0; i < bubbles.length; i++) {
+                    for (var z = 0; z < atackers.length; z++) {
+
+                        if (this.bubbles[i].x > (this.atackers[z].x - 14) &&
+                            (this.bubbles[i].x < (this.atackers[z].x + 43)) &&
+                            (this.bubbles[i].y > (this.atackers[z].y - 9)) &&
+                            (this.bubbles[i].y < (this.atackers[z].y + 42))) {
+
+                            //: Om en powerup bakterie blir träffad, sparas kodrinaterna i en temporär array. samt att den tenporära arrays information blir bortagen
+                            if(atackers[z].name == 12 || atackers[z].name == 5 || atackers[z].name == 20 ){
+                            //: Tar bort all information i den temporära array.
+                            temp.splice(0,temp.length)
+                            //: sparas kodrinaterna i en temporär array.
+                            temp.push(this.atackers[z].x, this.atackers[z].y)
+                            }
+                            //: Tar bort bakteriet som har blivit kolliderat.
+                            atackers.splice(z, 1)
+
                         }
-                        
-                        
                     }
-                    
                 }
-                
-                
             }
 
 
+/*
 
-            //: Gör så att alla bublor är identifierbara
+            function powerup() {
+                if(temp[]){}
+
+            }
+
+*/
+
+            //: Gör så att alla bublor är identifierbara , genom att lägga till ett på namnet.
             var bublename = 1
 
             //: Gör så att man inte kan skjuta bublor kostant.
@@ -257,21 +300,47 @@
             //: En funktion som kollar om någon har tryckt ner en knapp.
             function keyDown(ev) {
 
-                console.log(ev.keyCode);
+
 
 
                 //: Gör så att det skaps en ny bubla när man trycker ner space
                 if ((ev.keyCode == 32) && (reloadtimer < ((hours * 864000) + (minutes * 14400) + (seconds * 240) + miliseconds))) {
 
                     //: Skapr en ny bubla, och lägger den i en array så att den blir lätt tillgänglig
-                    bubbles.push(new buble(bublename, soapx + 35, soapy + 25, -0.3, 0,0))
+                    bubbles.push(new buble(bublename, soapx + 35, soapy + 25, -0.3, 0, 0))
 
                     //: höjer namnet med en så att nästa buble inte har samma namn som förra.
                     bublename = bublename + 1
 
-                    //: lägger in tiden i en array så att man bara kan skjuta efter det ha gått en sekund
+                    //: lägger in tiden i en variabel så att man bara kan skjuta efter det ha gått en sekund
                     reloadtimer = ((hours * 864000) + (minutes * 14400) + (seconds * 240) + miliseconds + 240)
 
+                }
+
+
+                //: kontrolera tålen.
+                //: vänsterknappen
+                if (ev.keyCode == 65) {
+                    soapVx = -0.5
+                }
+                //: Högerknappen
+                if (ev.keyCode == 68) {
+                    soapVx = 0.5
+                }
+
+                //: test
+                //: kontrolera bubblan
+                if (ev.keyCode == 37) {
+                    this.bubbles[0].vx = -0.3
+                }
+                if (ev.keyCode == 38) {
+                    this.bubbles[0].vy = -0.3
+                }
+                if (ev.keyCode == 40) {
+                    this.bubbles[0].vy = 0.3
+                }
+                if (ev.keyCode == 39) {
+                    this.bubbles[0].vx = 0.3
                 }
 
             }
@@ -279,7 +348,33 @@
             //: En funktion som kollar om någon har släppt en knapp.
             function keyUp(ev) {
 
-                console.log(ev.keyCode);
+                //: stoppar  tålen när man inte trycker på en knapp.
+                //: Högerknappen
+                if (ev.keyCode == 65) {
+                    soapVx = 0
+                }
+                //: Högerknappen
+                if (ev.keyCode == 68) {
+                    soapVx = 0
+                }
+
+
+
+                //: test
+                //: kontrolera bubblan
+                if (ev.keyCode == 37) {
+                    this.bubbles[0].vx = 0
+                }
+                if (ev.keyCode == 38) {
+                    this.bubbles[0].vy = 0
+                }
+                if (ev.keyCode == 40) {
+                    this.bubbles[0].vy = 0
+                }
+                if (ev.keyCode == 39) {
+                    this.bubbles[0].vx = 0
+                }
+
             }
 
 
@@ -289,9 +384,6 @@
                 seconds = 0,
                 minutes = 0,
                 hours = 0;
-
-            
-            
 
             // : Gör så att tiden ändras, allt efter som.(En klocka.)
             function heartbeat() {
