@@ -4,9 +4,11 @@
 <head>
 
 
+    <title>
+        Dusch tvål annihilater
+    </title>
 
-
-
+    <meta charset="utf-8">
 
 </head>
 <img id="soap" src="Bilder/soap1.png" style="display: none">
@@ -16,6 +18,10 @@
 <img id="redBakteria" src="Bilder/Backteria%20smutsig%20r%C3%B6d.png" style="display: none">
 <img id="blueBakteria" src="Bilder/Backteria%20smutsig%20bl%C3%A5.png" style="display: none">
 <img id="blackBakteria" src="Bilder/Backteria%20smutsig%20svart.png" style="display: none">
+<img id="black-powerup" src="Bilder/powerup%20black.png" style="display: none">
+<img id="red-powerup" src="Bilder//powerup%20red.png" style="display: none">
+<img id="blue-powerup" src="Bilder/poweup%20blue.png" style="display: none">
+
 
 
 <body onkeydown="keyDown(event)" onkeyup="keyUp(event)">
@@ -39,14 +45,24 @@
             var blueBakteriaImg = document.getElementById("blueBakteria")
             var blackBakteriaImg = document.getElementById("blackBakteria")
 
+            var redPowerupaImg = document.getElementById("red-powerup")
+            var blackPowerupImg = document.getElementById("black-powerup")
+            var bluePowerupImg = document.getElementById("blue-powerup")
 
 
 
+            //: laddar in musik effekterna.
+            var laserSound = new Audio('fx/Sound Effect. Laser Cannon Charging and Firing.mp3')
+
+            
+            
             //:  uppdaterar functionen som uppdaterar  spelet
             window.setInterval(update, 1)
 
+
+
             // functionen som skapar en bakteria.
-            function backteria(name, x, y, vy, vx) {
+            function Backteria(name, x, y, vy, vx) {
 
                 this.name = name;
                 this.x = x;
@@ -59,7 +75,7 @@
             }
 
             //: Skapar nya bublor som används för att tvätta bakterierna.
-            function buble(name, x, y, vy, vx, damage) {
+            function Buble(name, x, y, vy, vx, damage) {
 
                 this.name = name;
                 this.x = x;
@@ -71,23 +87,60 @@
             }
 
 
+            //: en function som skapar nya powerups  
+            function Powerup(name, x, y, vy) {
+
+                this.name = name;
+                this.x = x;
+                this.y = y;
+                this.vy = vy;
+            }
+
+            //: en function som skapar en laser  
+            function Laser(name, x, y, heigt, width,laserOffset) {
+
+                this.name = name;
+                this.x = x;
+                this.y = y;
+                this.heigt = heigt;
+                this.width = width;
+                this.laserOffset = laserOffset;
+
+            }
+
+
+            function soap(x,y,img){
+                this.img = soapImg;
+                this.x = x;
+                this.y = y;
+            }
+
+
+
             //: Skapar alla arays så att alla obejt har en plats.
 
             //: Array för bakterierna
             var atackers = []
-                //: Array för bublorna.
+                //: Array för bublorna samt laserar.
             var bubbles = []
                 //: En array för temporär information,
             var temp = []
+                //: En array för alla powerups 
+            var powerUps = []
+
 
 
 
 
             //: Ger tvålen ett rörligt x och y värde.
-            var soapx = 350,
-                soapy = 500,
+            var soapX = 350,
+                soapY = 500,
                 soapVx = 0,
                 soapVy = 0;
+
+
+            //: definerar om en powerup har aktiverats , samt vilken
+            var powerActive = "regular";
 
 
             //:  uppdaterar spelet
@@ -112,9 +165,16 @@
             }
 
 
+            //: en function som kollar om något är en string eller ett number
+            function isNumber(n) {
+                return /^-?[\d.]+(?:e-?\d+)?$/.test(n);
+            }
+
+
             //: skapr namn för alla bakterier så att de blir identifierbara.
             var names = 0,
-                startmotion = 1;
+                arcRadius = 0;
+            startmotion = 1;
 
             //: Skapar nya bakterier.
             function Spawn() {
@@ -124,7 +184,7 @@
                     //: lägger till ett på namnet , så att alla bakterier får olika namn.
                     names = names + 1
                         //: skapr en ny bakterie och läger in den i en array, så att den är lätt tillgänglig
-                    atackers.push(new backteria(names, 0, 10, 0, 0.3))
+                    atackers.push(new Backteria(names, 0, 10, 0, 0.3))
 
 
 
@@ -133,7 +193,7 @@
             }
 
 
-            //: Ritar ut alla Backterier
+            //: Ritar ut allting
             function DrawImg() {
 
 
@@ -205,55 +265,165 @@
 
                     }
 
-                    //: Uppdaterar positionen av bakterien
-                    this.atackers[i].x = this.atackers[i].x + this.atackers[i].vx
-                    this.atackers[i].y = this.atackers[i].y + this.atackers[i].vy
+                    
 
-                    //: Målar ut bakterierna. målar även ut special färgade baktterier.
-                    if ((this.atackers[i].name !== 12) && (this.atackers[i].name !== 5) && (this.atackers[i].name !== 20)) {
-                        //: Målar ut den vanligt färgade bakterien
-                        ctx.drawImage(dirtyBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
-                    } else if (this.atackers[i].name == 12) {
-                        //: Målar ut den röd färgade bakterien
-                        ctx.drawImage(redBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
-                    } else if (this.atackers[i].name == 5) {
-                        //: Målar ut den svart färgade bakterien
-                        ctx.drawImage(blackBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
-                    } else if (this.atackers[i].name == 20) {
-                        //: Målar ut den ljusblå färgade bakterien
-                        ctx.drawImage(blueBakteriaImg, this.atackers[i].x, this.atackers[i].y, 50, 50)
-                    }
-
-
+                    //: ritar ut bakterien.
+                    atackers[i].paint(ctx)
+                    
                 }
 
 
 
-                //: Ritar ut alla bublor.
+                //: Ritar ut alla bublor samt alla laserar.
                 for (i = 0; i < bubbles.length; i++) {
-
-                    this.bubbles[i].x = this.bubbles[i].x + this.bubbles[i].vx
-                    this.bubbles[i].y = this.bubbles[i].y + this.bubbles[i].vy
-
-                    ctx.drawImage(soapbubleImg, this.bubbles[i].x, this.bubbles[i].y, 18, 17)
-
+                    
+                    bubbles[i].paint(ctx)
+                    
                 }
-
-
 
                 //: Ritar ut tvålen.
-                soapx += soapVx
-                ctx.drawImage(soapImg, soapx, soapy, 100, 100)
+                soapX += soapVx
+                ctx.drawImage(soapImg, soapX, soapY, 100, 100)
+
+
+
+                //: Ritar ut alla powerups samt att
+                //:förflyttar powerupsen neråt efter de har spawnat.
+
+                for (var i = 0; i < powerUps.length; i++) {
+                    //: ritar ut den svarta powerup.
+                    if (this.powerUps[i].name == "svart") {
+                        //:förflyttar den svarta powerupen neråt efter de har spawnat. om den inte har nått ner till tvålen.
+                        this.powerUps[i].y += this.powerUps[i].vy
+
+                        if (this.powerUps[i].y > 530) {
+                            this.powerUps[i].vy = 0
+                        }
+                        //: Ritar ut powerupen.
+                        ctx.drawImage(blackPowerupImg, this.powerUps[i].x, this.powerUps[i].y, 40, 40)
+                    }
+                    //: ritar ut den röda powerup.
+                    if (this.powerUps[i].name == "röd") {
+                        //:förflyttar den röda powerupen neråt efter de har spawnat. om den inte har nått ner till tvålen.
+                        this.powerUps[i].y += this.powerUps[i].vy
+
+                        if (this.powerUps[i].y > 530) {
+                            this.powerUps[i].vy = 0
+                        }
+                        //: Ritar ut powerupen.
+                        ctx.drawImage(redPowerupaImg, this.powerUps[i].x, this.powerUps[i].y, 40, 40)
+                    }
+                    //: ritar ut den blå powerup.
+                    if (this.powerUps[i].name == "blå") {
+                        //:förflyttar den blåa powerupen neråt efter de har spawnat. om den inte har nått ner till tvålen.
+                        this.powerUps[i].y += this.powerUps[i].vy
+
+                        if (this.powerUps[i].y > 530) {
+                            this.powerUps[i].vy = 0
+                        }
+                        //: Ritar ut powerupen.
+                        ctx.drawImage(bluePowerupImg, this.powerUps[i].x, this.powerUps[i].y, 40, 40)
+                    }
+                }
+
+
 
 
             }
 
 
 
+            //: paint function som reitar ut alla bublorsamt laserar.
+            Buble.prototype.paint = function (ctx) {
 
-            //: En function som kollar om någon av bulorna och bakterierna har kolliderat.
-            //: Tar även bort bakteriet som har kolliderat.
+                //: kollar om det är en bubbla som ska ritas ut ellerom det är en laser
+
+                this.x += this.vx
+                this.y += this.vy
+
+                ctx.drawImage(soapbubleImg, this.x, this.y, 18, 17)
+
+            }
+
+
+ 
+      
+            //: paint function som ritar utlasern.
+            Laser.prototype.paint = function (ctx) {
+
+                this.x = soapX + 45
+                this.y = soapY + 5
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, arcRadius, 0, 2 * Math.PI)
+                ctx.fillStyle = "rgb(28,107,160)"
+                ctx.fill()
+                ctx.stroke();
+
+                if (arcRadius < 20) {
+                    arcRadius += 0.1
+                }
+
+
+                if (reloadtimer < ((hours * 864000) + (minutes * 14400) + (seconds * 240) + miliseconds)) {
+
+                    ctx.fillRect(this.x  + this.laserOffset, this.y, this.width, this.heigt)
+                    
+                    
+                    if(this.heigt > -700){
+                    this.heigt += -4
+                    
+                    }else {
+                        if(this.width < 0){
+                         this.width += 0.4
+                        }else{
+                            
+                            //: tar bort lasern när den har nått sin max längd.
+                            //: Samt gör en reset så att alla annimationer går till sina 0 punkter.
+                            bubbles.splice((temp[77] -1),1)
+                            powerActive = "regular"
+                            arcRadius = 0
+                        } 
+                   
+                       this.laserOffset += -0.2
+                    }
+                
+                    
+                }
+
+            }
+
+            Backteria.prototype.paint = function (ctx) {
+                
+                      //: Uppdaterar positionen av bakterien
+                    this.x += this.vx
+                    this.y += this.vy
+            
+                    //: Målar ut bakterierna. målar även ut special färgade baktterier.
+                    if ((this.name !== 12) && (this.name !== 5) && (this.name !== 20)) {
+                        //: Målar ut den vanligt färgade bakterien
+                        ctx.drawImage(dirtyBakteriaImg, this.x, this.y, 50, 50)
+                    } else if (this.name == 12) {
+                        //: Målar ut den röd färgade bakterien
+                        ctx.drawImage(redBakteriaImg, this.x, this.y, 50, 50)
+                    } else if (this.name == 5) {
+                        //: Målar ut den svart färgade bakterien
+                        ctx.drawImage(blackBakteriaImg, this.x, this.y, 50, 50)
+                    } else if (this.name == 20) {
+                        //: Målar ut den ljusblå färgade bakterien
+                        ctx.drawImage(blueBakteriaImg, this.x, this.y, 50, 50)
+                    }
+
+                
+                
+            }
+
+            var speed = 0
+
+            //: En funktion som kollar om något har kolliderat.
             function collision() {
+                //: kollar om någoting av bulorna och bakterierna har kolliderat.
+                //: Tar även bort bakteriet som har kolliderat.
                 for (var i = 0; i < bubbles.length; i++) {
                     for (var z = 0; z < atackers.length; z++) {
 
@@ -263,29 +433,87 @@
                             (this.bubbles[i].y < (this.atackers[z].y + 42))) {
 
                             //: Om en powerup bakterie blir träffad, sparas kodrinaterna i en temporär array. samt att den tenporära arrays information blir bortagen
-                            if(atackers[z].name == 12 || atackers[z].name == 5 || atackers[z].name == 20 ){
-                            //: Tar bort all information i den temporära array.
-                            temp.splice(0,temp.length)
-                            //: sparas kodrinaterna i en temporär array.
-                            temp.push(this.atackers[z].x, this.atackers[z].y)
+                            if (atackers[z].name == 12 || atackers[z].name == 5 || atackers[z].name == 20) {
+
+                                //: sparar vilken powerup som blivit träfad också i en varibel.
+                                if (atackers[z].name == 5) {
+                                    powerName = "svart"
+
+                                }
+                                if (atackers[z].name == 12) {
+                                    powerName = "röd"
+                                }
+                                if (atackers[z].name == 20) {
+                                    powerName = "blå"
+                                }
+                                //: startar functionen som skapar powerups.
+                                powerUp(atackers[z].x, atackers[z].y, powerName);
                             }
                             //: Tar bort bakteriet som har blivit kolliderat.
                             atackers.splice(z, 1)
+                                //: tar bort bubblan som träffat bakterien
+                            bubbles.splice(i, 1)
 
                         }
+                        
+                        //: Hit-box för lasern.
+                        //: kollar om projektilen inte är en bubla.
+                        if(this.bubbles[i].laserOffset !== undefined){
+                            
+                            if(this.bubbles[i].x > (this.atackers[z].x - 14) &&
+                            (this.bubbles[i].x < (this.atackers[z].x + 66)) &&
+                            (this.bubbles[i].y + this.bubbles[i].heigt > (this.atackers[z].y + 7)) &&
+                            (this.bubbles[i].y + this.bubbles[i].heigt < (this.atackers[z].y + 42))){
+                                 
+                                //: Tar bort bakteriet som har blivit kolliderat.
+                                  atackers.splice(z, 1)   
+                            }
+                                
+                                
+                        }
+                        
+                        
                     }
                 }
+
+                //: Skannar igenom arrayn för powerups och kollar om någon av dem har kolliderat med tvålen
+                //: Om detta sker bestäms en power up sat att powerupen försvinner.
+                //: inget av detta händer om  inte powerupen står på samma nivå som tvålen.
+                for (var z = 0; z < powerUps.length; z++) {
+                    if ((soapX < (this.powerUps[z].x + 19)) && (soapX > (this.powerUps[z].x - 70)) && (this.powerUps[z].y > 530)) {
+
+                        if (this.powerUps[z].name == "svart") {
+                            powerActive = "triple"
+                            powerUps.splice(z, 1)
+                        } else if (this.powerUps[z].name == "röd") {
+                            powerActive = "snabb"
+                            powerUps.splice(z, 1)
+                        } else if (this.powerUps[z].name == "blå") {
+                            powerActive = "laser"
+                            powerUps.splice(z, 1)
+                        } else if (this.powerUps[z].name == "guld") {
+                            powerActive = 4
+                            powerUps.splice(z, 1)
+                        }
+                    }
+
+
+                }
+
+
+
+
             }
 
 
-/*
 
-            function powerup() {
-                if(temp[]){}
+
+            //: skapar en powerup effekt när man dödar ett power monster.
+            function powerUp(x, y, name) {
+                //: lägger in all värden i powerup arrayn.
+                powerUps.push(new Powerup(name, x, y, 0.3))
 
             }
-
-*/
 
             //: Gör så att alla bublor är identifierbara , genom att lägga till ett på namnet.
             var bublename = 1
@@ -295,25 +523,98 @@
             //: Gör så att man inte kan skjuta på 1 sejund efter man har skjutit-
             var reloadtimer = 0
 
+            //: håller koll på  hur många gånger som en poweup har änväds i "tripple" i [0]
+            //: sparar hur lång tid som snabb har använts i [1]
+            var powercounter = [0, 0]
 
+            //: en variabel som bestämmer hur lång tid mellan varje skott.
+            var timeDelay = 480
 
             //: En funktion som kollar om någon har tryckt ner en knapp.
             function keyDown(ev) {
 
 
-
-
+                
+                
                 //: Gör så att det skaps en ny bubla när man trycker ner space
                 if ((ev.keyCode == 32) && (reloadtimer < ((hours * 864000) + (minutes * 14400) + (seconds * 240) + miliseconds))) {
 
-                    //: Skapr en ny bubla, och lägger den i en array så att den blir lätt tillgänglig
-                    bubbles.push(new buble(bublename, soapx + 35, soapy + 25, -0.3, 0, 0))
+                    //: kollar om en powerUp är aktiv
+                    if (powerActive == "regular") {
+                        //: Skapr en ny bubla, och lägger den i en array så att den blir lätt tillgänglig
+                        bubbles.push(new Buble(bublename, soapX + 35, soapY + 25, -0.3, 0, 0))
 
-                    //: höjer namnet med en så att nästa buble inte har samma namn som förra.
-                    bublename = bublename + 1
+                        //: höjer namnet med en så att nästa buble inte har samma namn som förra.
+                        bublename = bublename + 1
 
-                    //: lägger in tiden i en variabel så att man bara kan skjuta efter det ha gått en sekund
-                    reloadtimer = ((hours * 864000) + (minutes * 14400) + (seconds * 240) + miliseconds + 240)
+
+
+                    } else {
+
+                        //: aktiverar powerup "tripple" om den är aktiv 
+                        if (powerActive == "triple") {
+
+                            //: Skapr tre ny bublor som flyger åt varsitt håll. 
+                            //:samt  lägger den i en array så att den blir lätt tillgänglig
+                            bubbles.push(new Buble(bublename, soapX + 35, soapY + 25, -0.3, 0, 0))
+                                //: höjer namnet med en varje gång så att nästa buble inte har samma namn som förra.
+                            bublename = bublename + 1
+                                //: skapr ny bubla ( den vänstra)
+                            bubbles.push(new Buble(bublename, soapX + 35, soapY + 25, -0.3, -0.1, 0))
+                                //: höjer namnet 
+                            bublename = bublename + 1
+                                //: skapr ny bubla ( Den högra )
+                            bubbles.push(new Buble(bublename, soapX + 35, soapY + 25, -0.3, 0.1, 0))
+                                //: höjer namnet 
+                            bublename = bublename + 1
+                                //: lägger till en på countern som håller koll på hur många gånger man har skjuttit med poweupen, om den inte har sljutits 3 gånger
+                            if (powercounter[0] !== 2) {
+                                powercounter[0] += 1
+                            } else {
+                                powerActive = "regular"
+                            }
+
+
+
+                        } else if (powerActive == "snabb") {
+
+                            timeDelay = 120
+                                //: Skapr tre ny bublor som flyger åt varsitt håll. 
+                                //:samt  lägger den i en array så att den blir lätt tillgänglig
+                            bubbles.push(new Buble(bublename, soapX + 35, soapY + 25, -0.3, 0, 0))
+                                //: höjer namnet med en varje gång så att nästa buble inte har samma namn som förra.
+                            bublename = bublename + 1
+
+                            if (powercounter[1] !== 10) {
+                                powercounter[1] += 1
+                            } else {
+                                powerActive = "regular"
+                                timeDelay = 480
+                            }
+
+
+                        } else if (powerActive == "laser") {
+                            //: spelar upp laser soundeffekten.
+                            laserSound.play();
+                            
+                            //: stänger av så att man inte kan skjuta medans man laddar lasern.
+                            powerActive = "stasis"
+
+                            //: skapar en ny laser.
+                            bubbles.push(new Laser("Annihilater", soapX, soapY, 0, -40,20))
+                            //: sparar positionen av lasern i array.
+                            temp[77]=bubbles.length
+
+
+                        } else if (powerActive == 4) {
+
+
+
+                        }
+                    }
+
+                    //: lägger in tiden i en variabel så att man bara kan skjuta efter det ha gått två sekund
+                    reloadtimer = ((hours * 864000) + (minutes * 14400) + (seconds * 240) + miliseconds + timeDelay)
 
                 }
 
@@ -328,26 +629,34 @@
                     soapVx = 0.5
                 }
 
-                //: test
-                //: kontrolera bubblan
-                if (ev.keyCode == 37) {
-                    this.bubbles[0].vx = -0.3
+            
+              
+                if(ev.keyCode == 87){
+                    speed = -1
                 }
-                if (ev.keyCode == 38) {
-                    this.bubbles[0].vy = -0.3
+                 if(ev.keyCode == 83){
+                    speed = 1
                 }
-                if (ev.keyCode == 40) {
-                    this.bubbles[0].vy = 0.3
-                }
-                if (ev.keyCode == 39) {
-                    this.bubbles[0].vx = 0.3
-                }
-
+                
+             
+               if(ev.keyCode == 70){
+                   speed = 0
+               }
             }
 
             //: En funktion som kollar om någon har släppt en knapp.
             function keyUp(ev) {
 
+                
+                if(ev.keyCode == 87){
+                    speed = 0
+                }
+                
+                if(ev.keyCode == 83){
+                    speed = 0
+                }
+                
+                
                 //: stoppar  tålen när man inte trycker på en knapp.
                 //: Högerknappen
                 if (ev.keyCode == 65) {
@@ -356,23 +665,6 @@
                 //: Högerknappen
                 if (ev.keyCode == 68) {
                     soapVx = 0
-                }
-
-
-
-                //: test
-                //: kontrolera bubblan
-                if (ev.keyCode == 37) {
-                    this.bubbles[0].vx = 0
-                }
-                if (ev.keyCode == 38) {
-                    this.bubbles[0].vy = 0
-                }
-                if (ev.keyCode == 40) {
-                    this.bubbles[0].vy = 0
-                }
-                if (ev.keyCode == 39) {
-                    this.bubbles[0].vx = 0
                 }
 
             }
